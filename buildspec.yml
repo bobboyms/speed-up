@@ -5,33 +5,20 @@ phases:
     commands:
       - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
       - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
-      - echo ***** INSTALL TERRAFORM ******
-      - curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
-      - apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-      - apt-get update
-      - apt-get install terraform=0.14.8
-      - terraform -v
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 149501088887.dkr.ecr.us-east-1.amazonaws.com
   build:
     commands:
       - echo ***** AMBIENTE ******
-      - echo $ENVIRONMENT
-      - echo Build started on `date`
       - echo Building the Docker image...
+      - mkdir data
       - ls
-      - docker build -t $SERVICE_NAME .
-      - docker tag $SERVICE_NAME:latest $ECR/$SERVICE_NAME:$TAG
-      - echo ***** TERRAFORM BUILD ******
-      - cd terraform
-      - terraform init -backend=true -backend-config="$BACKEND"
-      - terraform validate
-      - terraform plan -var="load_balancer=$LOAD_BALANCER" -var="api_gateway_name=$API_GATEWAY_NAME" -var="lambda_whatssapp_callback_name=$LAMBDA_WHATSSAPP_CALLBACK_NAME" -var="lambda_survey_chart_name=$LAMBDA_SURVEY_CHART_NAME" -var="hosted_zone_domain=$HOSTED_ZONE_DOMAIN" -var="local_environment=$ENVIRONMENT" -var="aws_region=$REGION" -out="plan.tfout"
-      - terraform apply plan.tfout
+      - docker build -t speedup .
+      - docker tag speedup:latest 149501088887.dkr.ecr.us-east-1.amazonaws.com/speedup:latest
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
-      - docker push $ECR/$SERVICE_NAME:$TAG
+      - docker push 149501088887.dkr.ecr.us-east-1.amazonaws.com/speedup:latest
