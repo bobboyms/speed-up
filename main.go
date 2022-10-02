@@ -27,6 +27,8 @@ func (s *Server) GetData(ctx context.Context, req *speedup.RequestDataKey) (*spe
 
 	value, err := s.Service.Get(req.GetKey())
 
+	log.Printf("Get new data %v", req.GetKey())
+
 	if err != nil {
 		return &speedup.ResponseDataValue{
 			Value:     "",
@@ -41,6 +43,9 @@ func (s *Server) GetData(ctx context.Context, req *speedup.RequestDataKey) (*spe
 
 }
 func (s *Server) SetData(ctx context.Context, req *speedup.RequestDataKeyValue) (*speedup.ResponseEmpty, error) {
+
+	log.Printf("Set new data %v", req.GetKey())
+
 	err := s.Service.Set(req.GetKey(), req.GetValue())
 	if err != nil {
 		return &speedup.ResponseEmpty{
