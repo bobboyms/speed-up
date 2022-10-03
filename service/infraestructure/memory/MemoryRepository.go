@@ -1,15 +1,17 @@
 package memory
 
 import (
+	"fmt"
 	"speed-up/service/application/logger"
 	repositories "speed-up/service/application/repository"
 	"speed-up/service/infraestructure/files"
+	"sync"
 	"time"
 )
 
 type IndexRepository struct {
 	Chan  chan map[string]string
-	Index map[string]string
+	Index sync.Map
 }
 
 func NewMemoryIndexRepository(logger logger.Logger) repositories.DataRepository {
@@ -17,9 +19,9 @@ func NewMemoryIndexRepository(logger logger.Logger) repositories.DataRepository 
 	ch := make(chan map[string]string, 100)
 
 	start := time.Now()
-	index := files.LoadIndex()
+	index, count := files.LoadIndex()
 	elapsed := time.Since(start)
-	logger.Info("LOAD DATA", "Total..:", len(index), "Time ..: ", elapsed)
+	logger.Info("LOAD DATA", "Total..:", count, "Time ..: ", elapsed)
 
 	i := IndexRepository{
 		Chan:  ch,
@@ -32,11 +34,11 @@ func NewMemoryIndexRepository(logger logger.Logger) repositories.DataRepository 
 }
 
 func (i *IndexRepository) Get(key string) string {
-	values := i.Index[key]
-	return values
+	values, _ := i.Index.Load(key)
+	return fmt.Sprintf("%v", values)
 }
 
 func (i *IndexRepository) Set(key string, value string) {
-	i.Index[key] = value
+	i.Index.Store(key, value)
 	i.Chan <- map[string]string{key: value}
 }

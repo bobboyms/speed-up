@@ -42,9 +42,9 @@ func deepCopy(src, dist interface{}) (err error) {
 	return gob.NewDecoder(&buf).Decode(dist)
 }
 
-func LoadIndex() map[string]string {
+func LoadIndex() (sync.Map, int) {
 
-	index := make(map[string]string)
+	index := sync.Map{}
 
 	files, err := ioutil.ReadDir("./data/")
 	if err != nil {
@@ -66,13 +66,13 @@ func LoadIndex() map[string]string {
 			json.Unmarshal([]byte(dump.Index), &temp)
 
 			for key, value := range temp {
-				index[key] = value
+				index.Store(key, value)
 			}
 
 		}
 	}
 
-	return index
+	return index, count
 
 }
 
