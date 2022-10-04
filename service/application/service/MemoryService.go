@@ -39,3 +39,12 @@ func (m MemoryService) Get(key string) (string, error) {
 
 	return m.Repository.Get(key), nil
 }
+
+func (m MemoryService) Gets(key ...string) ([]string, error) {
+
+	if len(key) == 0 {
+		return nil, exception.ThrowValidationError("Key is null")
+	}
+
+	return m.Repository.Gets(key...), nil
+}

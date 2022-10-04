@@ -15,10 +15,18 @@ message ResponseDataValue {
   string exception = 2;
 }
 
-
 message RequestDataKeyValue {
   string key = 1;
   string value = 2;
+}
+
+message RequestDataKeyList {
+  repeated RequestDataKey requestDataKeyList = 1;
+}
+
+message ResponseDataValueList {
+  repeated ResponseDataValue responseDataValueList = 1;
+  string exception = 2;
 }
 
 message ResponseEmpty {
@@ -26,6 +34,7 @@ message ResponseEmpty {
 }
 
 service DataService {
+  rpc GetsData (RequestDataKeyList) returns (ResponseDataValueList){}
   rpc GetData (RequestDataKey) returns (ResponseDataValue){}
   rpc SetData (RequestDataKeyValue) returns (ResponseEmpty){}
 }

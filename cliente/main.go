@@ -11,7 +11,7 @@ import (
 
 func main() {
 	var conn *grpc.ClientConn
-	conn, err := grpc.Dial("ec2-34-239-251-75.compute-1.amazonaws.com:9000", grpc.WithInsecure())
+	conn, err := grpc.Dial("127.0.01:9000", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
@@ -20,18 +20,29 @@ func main() {
 	client := speedup.NewDataServiceClient(conn)
 	ctx, _ := context.WithTimeout(context.Background(), time.Second)
 
-	response, err := client.SetData(ctx, &speedup.RequestDataKeyValue{
+	response, _ := client.SetData(ctx, &speedup.RequestDataKeyValue{
 		Key:   "nome",
 		Value: "Thiago joses",
 	})
 
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
+	response, _ = client.SetData(ctx, &speedup.RequestDataKeyValue{
+		Key:   "idade",
+		Value: "13",
+	})
 
 	if response.GetException() != "" {
 		log.Fatalf(response.GetException())
 	}
+
+	requests := []*speedup.RequestDataKey{{Key: "idade"}, {Key: "nome"}}
+
+	data := &speedup.RequestDataKeyList{
+		RequestDataKeyList: requests,
+	}
+
+	resps, _ := client.GetsData(ctx, data)
+
+	println(resps.ResponseDataValueList[1].Value)
 
 	resp, err := client.GetData(ctx, &speedup.RequestDataKey{
 		Key: "nome",

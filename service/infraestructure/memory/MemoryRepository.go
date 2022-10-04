@@ -38,6 +38,16 @@ func (i *IndexRepository) Get(key string) string {
 	return fmt.Sprintf("%v", values)
 }
 
+func (i *IndexRepository) Gets(keys ...string) []string {
+
+	values := make([]string, 0)
+	for _, key := range keys {
+		values = append(values, i.Get(key))
+	}
+
+	return values
+}
+
 func (i *IndexRepository) Set(key string, value string) {
 	i.Index.Store(key, value)
 	i.Chan <- map[string]string{key: value}
