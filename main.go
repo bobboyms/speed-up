@@ -45,6 +45,7 @@ func (s *Server) GetsData(ctx context.Context, req *speedup.RequestDataKeyList) 
 	responses := make([]*speedup.ResponseDataValue, len(values))
 	for i, value := range values {
 		responses[i] = &speedup.ResponseDataValue{
+			Found: true,
 			Value: value,
 		}
 	}
@@ -62,12 +63,22 @@ func (s *Server) GetData(ctx context.Context, req *speedup.RequestDataKey) (*spe
 	if err != nil {
 		return &speedup.ResponseDataValue{
 			Value:     "",
+			Found:     false,
 			Exception: err.Error(),
 		}, err
 	}
 
+	if value == nil {
+		return &speedup.ResponseDataValue{
+			Value:     "",
+			Found:     false,
+			Exception: "",
+		}, nil
+	}
+
 	return &speedup.ResponseDataValue{
-		Value:     value,
+		Value:     *value,
+		Found:     true,
 		Exception: "",
 	}, nil
 

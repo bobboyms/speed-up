@@ -12,7 +12,8 @@ message RequestDataKey {
 
 message ResponseDataValue {
   string value = 1;
-  string exception = 2;
+  bool found = 2;
+  string exception = 3;
 }
 
 message RequestDataKeyValue {

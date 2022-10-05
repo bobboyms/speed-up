@@ -33,16 +33,25 @@ func NewMemoryIndexRepository(logger logger.Logger) repositories.DataRepository 
 	return &i
 }
 
-func (i *IndexRepository) Get(key string) string {
+func (i *IndexRepository) Get(key string) *string {
 	values, _ := i.Index.Load(key)
-	return fmt.Sprintf("%v", values)
+	if values == nil {
+		return nil
+	}
+	temp := fmt.Sprintf("%v", values)
+	return &temp
 }
 
 func (i *IndexRepository) Gets(keys ...string) []string {
 
 	values := make([]string, 0)
 	for _, key := range keys {
-		values = append(values, i.Get(key))
+		value := i.Get(key)
+
+		if value != nil {
+			values = append(values, *value)
+		}
+
 	}
 
 	return values

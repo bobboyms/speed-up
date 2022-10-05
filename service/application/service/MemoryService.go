@@ -31,10 +31,10 @@ func (m MemoryService) Set(key, value string) error {
 	return nil
 }
 
-func (m MemoryService) Get(key string) (string, error) {
+func (m MemoryService) Get(key string) (*string, error) {
 
 	if key == "" {
-		return "", exception.ThrowValidationError("Key is null")
+		return nil, exception.ThrowValidationError("Key is null")
 	}
 
 	return m.Repository.Get(key), nil

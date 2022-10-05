@@ -10,15 +10,16 @@ import (
 )
 
 func main() {
+	//ec2-34-239-251-75.compute-1.amazonaws.com:9000
 	var conn *grpc.ClientConn
-	conn, err := grpc.Dial("127.0.01:9000", grpc.WithInsecure())
+	conn, err := grpc.Dial("127.0.0.1:9000", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
 	defer conn.Close()
 
 	client := speedup.NewDataServiceClient(conn)
-	ctx, _ := context.WithTimeout(context.Background(), time.Second)
+	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
 
 	response, _ := client.SetData(ctx, &speedup.RequestDataKeyValue{
 		Key:   "nome",
@@ -34,7 +35,7 @@ func main() {
 		log.Fatalf(response.GetException())
 	}
 
-	requests := []*speedup.RequestDataKey{{Key: "idade"}, {Key: "nome"}}
+	requests := []*speedup.RequestDataKey{{Key: "idadex"}, {Key: "nomex"}, {Key: "xxx"}, {Key: "bbb"}}
 
 	data := &speedup.RequestDataKeyList{
 		RequestDataKeyList: requests,
@@ -42,19 +43,22 @@ func main() {
 
 	resps, _ := client.GetsData(ctx, data)
 
-	println(resps.ResponseDataValueList[1].Value)
+	for _, value := range resps.ResponseDataValueList {
+		println(value.Value)
+	}
 
 	resp, err := client.GetData(ctx, &speedup.RequestDataKey{
-		Key: "nome",
+		Key: "idade",
 	})
 
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
+	println("XXX")
 	if response.GetException() != "" {
 		log.Fatalf(response.GetException())
 	}
 
-	fmt.Printf("Resposta %v", resp.GetValue())
+	fmt.Printf("Resposta %v", resp.Found)
 }
